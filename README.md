@@ -80,28 +80,28 @@ This can be easily implemented in code as `channelId = 0x80 | channelIndex`.
 Single channel commands exist within a parent structure containing routing data, a command ID, and **possibly** additional metadata relative with a format relative to the command ID. Commands which do not have additional metadata should omit the section entirely and should not send empty values.
 
 ### Parent Structure
-| Name/Value | Byte Length | Data Type | Description |
-| - | - | - | - |
-| 0x00 | 1 | byte | Start padding byte. |
-| Controller ID | 1 | byte | Controller that should handle the command. |
-| Command ID | 1 | byte | Which command to perform. |
-| Metadata | - | []byte | Command specific metadata. |
-| Channel ID | 1 | byte | Channel to execute the command on. |
-| 0x00 | 1 | byte | End padding byte. |
+| Field | Data Type | Description |
+| - | - | - |
+| Header | byte | Value of 0x00 |
+| Controller ID | byte | |
+| Command ID | byte | |
+| Metadata | [-]byte | Command specific metadata structure |
+| Channel ID | byte | |
+| End | byte | Value of 0x00 |
 
 
 ### Metadata Structures
 #### Set Brightness
-| Name | Byte Length | Data Type | Description |
-| - | - | - | - |
-| Brightness | 1 | byte | The brightness level to set to. |
+| Name | Data Type |
+| - | - |
+| Brightness | byte |
 
 #### Fade
-| Name | Byte Length | Data Type | Description |
-| - | - | - | - |
-| Start Brightness | 1 | byte | The brightness to start at. |
-| End Brightness | 1 | byte | The brightness to end at. |
-| Duration | 2 | []byte | The duration of the fade. |
+| Name | Data Type |
+| - | - |
+| Start Brightness | byte |
+| End Brightness | byte |
+| Duration | [2]byte |
 
 #### Set Twinkle
 None.
@@ -113,18 +113,18 @@ None.
 ### Background Fade
 Background Fade enables applying a foreground command (such as `Twinkle` or `Shimmer`) atop a background command (which seems to only be `Fade`). This allows execution of the `Set Twinkle`/`Set Shimmer` and `Fade` single channel commands simultaneously on the same channel ID.
 
-| Name/Value | Byte Length | Data Type | Description |
-| - | - | - | - |
-| 0x00 | 1 | byte | Start padding byte. |
-| Controller ID | 1 | byte | Controller that should handle the command. |
-| Foreground Command ID | 1 | byte | Which foreground command to perform (only accepts `Twinkle` and `Shimmer`). |
-| Channel ID | 1 | byte | Channel to execute the command on. |
-| 0x81 | 1 | byte | Denotes extended command statement? |
-| Background Command ID | 1 | byte | Which background command to perform (only accepts `Fade`). |
-| Start Brightness | 1 | byte | The brightness to start at. |
-| End Brightness | 1 | byte | The brightness to end at. |
-| Duration | 2 | []byte | The duration of the fade. |
-| 0x00 | 1 | byte | End padding byte. |
+| Field | Data Type | Description |
+| - | - | - |
+| Header | byte | Value of 0x00 |
+| Controller ID | byte | |
+| Foreground Command ID | byte | Only accepts `Twinkle` and `Shimmer` |
+| Channel ID | byte | 
+| Magic Number | byte | Value of 0x81 (denotes extended command statement?) |
+| Background Command ID | byte | Only accepts `Fade` |
+| Start Brightness | byte | |
+| End Brightness | byte | |
+| Duration | [2]byte | |
+| End | byte | Value of 0x00 |
 
 ## Reference Implementations
 - [xLights](https://github.com/smeighan/xLights) is a LOR-like C++ program which offers support for LOR controller units. 
