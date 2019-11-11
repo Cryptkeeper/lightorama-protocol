@@ -116,14 +116,6 @@ Multi channel commands utilize the same command IDs and metadata structures as t
 
 The bit length of the channel mask corresponds to the amount of channels being updated rounded to the nearest multiple of 8. Channels with a 0 value bit are ignored and maintain their previous state.
 
-### Command ID Offsets
-Command IDs are offset by a magic number dependent on the length of the channel mask. You can determine the multi channel equivalent of a command ID using `multiCommandId = commandIdOffset | commandId`.
-
-| Channel Mask Length | Command ID Offset | Notes |
-| - | - | - |
-| 8 bits | `0x30` | |
-| 16 bits | `0x10` | `0x10` has a decimal value of 16 (coincidence?) |
-
 ### Parent Structure
 | Field | Data Type | Notes |
 | - | - | - |
@@ -133,6 +125,14 @@ Command IDs are offset by a magic number dependent on the length of the channel 
 | Metadata | | Command ID specific metadata structure |
 | Channel Mask | | Length is dependent on channel count |
 | End | `uint8` | Always `0x00` |
+
+### Command ID Offsets
+Command IDs are offset by a magic number dependent on the length of the channel mask. You can determine the multi channel equivalent of a command ID using `multiCommandId = commandIdOffset | commandId`.
+
+| Channel Mask Length | Command ID Offset | Notes |
+| - | - | - |
+| 8 bits | `0x30` | |
+| 16 bits | `0x10` | `0x10` has a decimal value of 16 (coincidence?) |
 
 ### Channel Masking Example
 The channel mask for channels 1, 7 and 14 in binary is `0010 0000 0100 0001`.
