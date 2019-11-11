@@ -13,15 +13,14 @@ I am using a `LOR1602WG3` unit at 19.2k with 16 channels. It has a controller ID
 The protocol is in big endian format.
 
 ### Expected Traffic 
-Controller units maintain their state internally. As such only _changed_ channel states need to be sent as they change. Some program implementations, such as [xLights](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L107), may choose to occasionally resend existing state commands as a "sanity" measure. Resending state may result in visual glitches caused by resetting effect timers (such as fading) and increases bandwidth use.
+Controller units maintain their state internally. As such only _changed_ channel states need to be sent as they change. Some program implementations may choose to occasionally [resend existing state commands](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L107) as a "sanity" measure. Resending state may result in visual glitches caused by resetting effect timers (such as fading) and increases bandwidth use.
 
 ## Heartbeat
 Every 0.5s the LOR Hardware Utility sends a heartbeat payload onto the network. [xLights](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L87) has re-implemented this at a timing value of 0.3s. The exact value does not seem to matter as long as it within a 2 second timeout (this timeout is approximate).
 
 If the controller unit has not recently received a heartbeat payload, it will consider itself not connected and become inactive. On my unit, this results in it not processing additional commands.
 
-The heartbeat payload is a constant set of 5 magic bytes. 
-`0x00, 0xFF, 0x81, 0x56, 0x00`
+The heartbeat payload is a constant set of 5 magic bytes: `[0x00, 0xFF, 0x81, 0x56, 0x00]`
 
 ## Magic Numbers & Encoding Formats
 Whether by design or by obfuscation the protocol contains several magic numbers and domain-specific encoding formats. Avoid duplicating these in code implementations as they may change.
@@ -66,10 +65,10 @@ Command IDs represent a predefined action for the controller to execute.
 
 | Value | Name | Description |
 | - | - | - |
-| 0x03 | Set | Sets a channel's brightness. |
-| 0x04 | Fade | Fades a channel between two brightness values. |
-| 0x06 | Twinkle | Sets a channel to twinkling mode. |
-| 0x07 | Shimmer | Sets a channel to shimmer mode. |
+| 0x03 | Set | Sets a channel's brightness |
+| 0x04 | Fade | Fades a channel between two brightness values |
+| 0x06 | Twinkle | Sets a channel to twinkling mode |
+| 0x07 | Shimmer | Sets a channel to shimmer mode |
 
 ### Channel IDs
 Channel IDs can be determined by taking the index of the channel (starting at 0, not 1) plus 128 (`0x80`). 
@@ -80,14 +79,14 @@ This can be easily implemented in code as `channelId = 0x80 | channelIndex`.
 Single channel commands exist within a parent structure containing routing data, a command ID, and **possibly** additional metadata relative with a format relative to the command ID. Commands which do not have additional metadata should omit the section entirely and should not send empty values.
 
 ### Parent Structure
-| Field | Data Type | Description |
+| Field | Data Type | Notes |
 | - | - | - |
-| Header | byte | Value of 0x00 |
+| Header | byte | Always `0x00` |
 | Controller ID | byte | |
 | Command ID | byte | |
-| Metadata | [-]byte | Command specific metadata structure |
+| Metadata | | Command ID specific metadata structure |
 | Channel ID | byte | |
-| End | byte | Value of 0x00 |
+| End | byte | Always `0x00` |
 
 
 ### Metadata Structures
@@ -111,11 +110,11 @@ None.
 
 ## Extended Commands
 ### Background Fade
-Background Fade enables applying a foreground command (such as `Twinkle` or `Shimmer`) atop a background command (which seems to only be `Fade`). This allows execution of the `Set Twinkle`/`Set Shimmer` and `Fade` single channel commands simultaneously on the same channel ID.
+Background Fade enables applying a foreground command atop a background command. This allows execution of multiple single channel commands simultaneously on the same channel ID.
 
-| Field | Data Type | Description |
+| Field | Data Type | Notes |
 | - | - | - |
-| Header | byte | Value of 0x00 |
+| Header | byte | Always `0x00` |
 | Controller ID | byte | |
 | Foreground Command ID | byte | Only accepts `Twinkle` and `Shimmer` |
 | Channel ID | byte | 
@@ -124,7 +123,7 @@ Background Fade enables applying a foreground command (such as `Twinkle` or `Shi
 | Start Brightness | byte | |
 | End Brightness | byte | |
 | Duration | [2]byte | |
-| End | byte | Value of 0x00 |
+| End | byte | Always `0x00` |
 
 ## Reference Implementations
 - [xLights](https://github.com/smeighan/xLights) is a LOR-like C++ program which offers support for LOR controller units. 
