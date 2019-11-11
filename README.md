@@ -6,7 +6,7 @@ Given the reverse engineered nature, this documentation should be considered inc
 It is provided as is. 
 
 ## Configuration
-I am using a `LOR1602WG3` unit at 19.2k with 16 channels. It has a controller ID of `0x01`. The baud rate for a LOR network is heavily dependant on its usage and hardware. Check out [LOR's documentation](http://www1.lightorama.com/network-speeds/) for selecting a baud rate.
+I am using a `LOR1602WG3` unit with 16 channels, an ID of `0x01`, and a 19.2K baud rate. The baud rate for a LOR network is heavily dependant on its usage. Check out [LOR's documentation](http://www1.lightorama.com/network-speeds/) for selecting a baud rate.
 
 ## Network
 ### Stateful Protocol
