@@ -1,4 +1,4 @@
-# Light-O-Rama Communication Protocol
+# Light-O-Rama Protocol
 This documentation covers the Light-O-Rama (LOR) communication protocol for [AC lighting control units](http://www1.lightorama.com/pro-ac-light-controllers/). It has been manually reverse engineered using the [LOR Hardware Utility](http://www.lightorama.com/help/index.html?hardware_utility.htm), serial port monitoring software and a `LOR1602WG3` unit.
 
 Given the reverse engineered nature, this documentation should be considered incomplete, incorrect and outdated. 
