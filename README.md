@@ -6,7 +6,7 @@ Given the reverse engineered nature, this documentation should be considered inc
 It is provided as is. 
 
 ## Configuration
-I am using a `LOR1602WG3` unit at 19.2k with 16 channels. It has a controller ID of 0x01. The baud rate for a LOR network is heavily dependant on its usage and hardware. Check out [LOR's documentation](http://www1.lightorama.com/network-speeds/) for selecting a baud rate given your setup.
+I am using a `LOR1602WG3` unit at 19.2k with 16 channels. It has a controller ID of 0x01. The baud rate for a LOR network is heavily dependant on its usage and hardware. Check out [LOR's documentation](http://www1.lightorama.com/network-speeds/) for selecting a baud rate.
 
 ## Network Protocol
 ### Format
@@ -111,7 +111,7 @@ An alternate command exists which is an extended form of the Fade command and do
 | - | - | - | - |
 | 0x00 | 1 | byte | Start padding byte. |
 | Controller ID | 1 | byte | ID of the controller that should handle the command. |
-| Command ID | 1 | byte | The command ID of the additional command (such as `Twinkle`). |
+| Command ID | 1 | byte | The ID of the additional command (such as `Twinkle`). |
 | Channel ID | 1 | byte | Channel ID for perform the command on. |
 | 0x81 | 1 | byte | Denotes extended command statement? |
 | Base Command ID | 1 | byte | The base command ID (such as `Fade`). |
