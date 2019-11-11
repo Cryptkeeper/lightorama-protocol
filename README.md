@@ -72,9 +72,9 @@ Command IDs represent a predefined action for the controller to execute.
 | 0x07 | Shimmer | Sets a channel to shimmer mode. |
 
 ### Channel IDs
-Channel IDs can be determined by taking the ordinal of the channel (starting at 1, not 0) plus 128 (0x80). 
+Channel IDs can be determined by taking the index of the channel (starting at 0, not 1) plus 128 (`0x80`). 
 
-This can be easily implemented in code as `channelId = 0x80 | channelOrdinal`. 
+This can be easily implemented in code as `channelId = 0x80 | channelIndex`. 
 
 ## Commands
 All commands exist within a parent structure containing routing data, a command ID, and **possibly** additional metadata relative with a format relative to the command ID. Commands which do not have additional metadata should omit the section entirely and should not send empty values.
