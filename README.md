@@ -121,7 +121,7 @@ The bit length of the channel mask corresponds to the amount of channels being u
 | - | - | - |
 | Header | `uint8` | Always `0x00` |
 | Controller ID | `uint8` | |
-| Command ID | `bytuint8e` | Command ID offset by magic number |
+| Command ID | `uint8` | Command ID offset by magic number |
 | Metadata | | Command ID specific metadata structure |
 | Channel Mask | | Length is dependent on channel count |
 | End | `uint8` | Always `0x00` |
