@@ -112,18 +112,26 @@ None.
 None.
 
 ## Multi Channel Commands
-Multi channel commands utilize the same command IDs and metadata structures as their single channel command equivalents with some notable differences:
-- Instead of supplying a channel ID, a bitmask is sent with a length corresponding to the amount of channels rounded to the nearest multiple of 8. Channels with 0 value bits are ignored and maintain their previous state.
-- Command IDs are offset by `0x10`. You can determine the multi channel equivalent of a command ID using `multiCommandId = 0x10 | commandId`. The `0x10` offset (16) *may* be a length indicator for the bitmask length.
+Multi channel commands utilize the same command IDs and metadata structures as their single channel command equivalents with the exception that instead of sending a `uint8` channel ID a channel bitmask is sent.
+
+The bit length of the channel mask corresponds to the amount of channels being updated rounded to the nearest multiple of 8. Channels with a 0 value bit are ignored and maintain their previous state.
+
+### Command ID Offsets
+Command IDs are offset by a magic number dependent on the length of the channel mask. You can determine the multi channel equivalent of a command ID using `multiCommandId = commandIdOffset | commandId`.
+
+| Channel Mask Length | Command ID Offset | Notes |
+| - | - | - |
+| 8 bits | `0x30` | |
+| 16 bits | `0x10` | `0x10` has a decimal value of 16 (coincidence?) |
 
 ### Parent Structure
 | Field | Data Type | Notes |
 | - | - | - |
 | Header | `uint8` | Always `0x00` |
 | Controller ID | `uint8` | |
-| Command ID | `bytuint8e` | Command ID offset by `0x10` |
+| Command ID | `bytuint8e` | Command ID offset by magic number |
 | Metadata | | Command ID specific metadata structure |
-| Channel Mask | | Length may vary by controller |
+| Channel Mask | | Length is dependent on channel count |
 | End | `uint8` | Always `0x00` |
 
 ### Channel Masking Example
@@ -138,9 +146,6 @@ mask |= 1 << 13 // set bit index 13 (channel 14) to 1
 ```
 
 This mask is then encoded as: `[0x20, 0x41]`
-
-### Notes
-- Unlike other multi channel commands, the `On` command appears to reset the state of 0 bit value channels. This may indicate documentation errors.
 
 ## Extended Commands
 ### Background Fade
