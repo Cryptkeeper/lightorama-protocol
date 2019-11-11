@@ -118,7 +118,7 @@ Background Fade enables applying a foreground command atop a background command.
 | Controller ID | byte | |
 | Foreground Command ID | byte | Only accepts `Twinkle` and `Shimmer` |
 | Channel ID | byte | 
-| Magic Number | byte | Value of 0x81 (denotes extended command statement?) |
+| Magic Number | byte | Always `0x81` (denotes extended command statement?) |
 | Background Command ID | byte | Only accepts `Fade` |
 | Start Brightness | byte | |
 | End Brightness | byte | |
