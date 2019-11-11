@@ -36,8 +36,8 @@ You can convert a given value (between [0, 1]) using:
 
 This example results in a linear brightness curve. Some program implementations, such as xLights, may use a [custom curve](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L66). The brightness curve's behavior is up to the developer and is not restricted by the hardware beyond the previously specified min/max values.
 
-### Duration
-Durations are encoded in a unique 2 byte format. This format, as documented, has been derived from the assumption that durations have a min value of 0.1s and a max of 25s (as offered by the LOR Hardware Utility). While the LOR Hardware Utility only offers durations in increments by 0.1s (10 FPS), the encoding format does allow (while variable) additional precision however your mileage will vary depending on its usage.
+### Durations
+Durations are encoded in a unique [2]byte format. The method for encoding into this format has been derived from the assumption that durations have a minimum value of 0.1s and a maximum of 25s (as offered by the LOR Hardware Utility). While the LOR Hardware Utility only offers durations in increments by 0.1s (10 FPS), the encoding format does allow (while variable) additional precision however your mileage will vary depending on its usage.
 
 Before being encoded, the value must be scaled. The scale used is exponential*ish* and offers higher precision for lower value durations. For example, the delta of the scaled values of 0.1s and 0.2s is 231.8x larger than the delta between the scaled values of 2.1s and 2.2s.
 
