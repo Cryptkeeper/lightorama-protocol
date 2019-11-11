@@ -9,7 +9,7 @@ It is provided as is.
 I am using a `LOR1602WG3` unit at 19.2k with 16 channels. It has a controller ID of 0x01. The baud rate for a LOR network is heavily dependant on its usage and hardware. Check out [LOR's documentation](http://www1.lightorama.com/network-speeds/) for selecting a baud rate.
 
 ## Traffic
-Controller units maintain their state internally. As such only _changed_ channel states need to be sent as they change. Some program implementations may choose to occasionally [resend existing state commands](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L107) as a "sanity" measure. Resending state may result in visual glitches caused by resetting effect timers (such as fading) and increases bandwidth use.
+LOR units maintain their state internally; only _changed_ channel states need to be sent. Some program implementations may choose to occasionally [resend existing state commands](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L107) as a "sanity" measure. Resending state may result in visual glitches caused by resetting effect timers and increases bandwidth use.
 
 ## Heartbeat
 Every 0.5s the LOR Hardware Utility sends a heartbeat payload onto the network. The exact value does not seem to matter as long as it within a 2 second timeout (this timeout is approximate).
@@ -46,7 +46,7 @@ Given `timeSeconds` as a duration in seconds (such as 0.1s or 5s), you can calcu
 
 ...where `maxDuration` and `minDuration` have values of `5099` (the decimal value of the captured hex encoded form of 0.1s, `[0x13, 0xEB]`) and `0.1` respectively. If `scaledValue <= 0xFF`, then it is encoded as `[0x80, scaledValue]` where `0x80` is a magic number representing an "empty" byte ignored by the unit. Scaled values larger than `0xFF` must be encoded in big endian format as a uint16.
 
-#### Example Encodings
+#### Examples
 | Timing | Scaled Value | Encoded Format |
 | - | - | - |
 | 0.1s | 5099 | `[0x13, 0xEB]` |
@@ -55,6 +55,7 @@ Given `timeSeconds` as a duration in seconds (such as 0.1s or 5s), you can calcu
 | 2s | 255 | `[0x80, 0xFF]` |
 | 25s | 20 | `[0x80, 0x14]` |
 
+#### Notes
 As a reference, 2s is encoded as `[0x80, 0xFF]` (with a decimal value of `255`) which defines the break point in the previously mention encoding logic.
 
 Any scale could technically be applied atop this behavior assuming the resulting encoded values stay within the assumed boundaries of `5099` (0.1s) and `20` (25s).
