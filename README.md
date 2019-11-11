@@ -9,8 +9,7 @@ It is provided as is.
 I am using a `LOR1602WG3` unit at 19.2k with 16 channels. It has a controller ID of 0x01. The baud rate for a LOR network is heavily dependant on its usage and hardware. Check out [LOR's documentation](http://www1.lightorama.com/network-speeds/) for selecting a baud rate.
 
 ## Network Protocol
-### Format
-The protocol is in big endian format.
+The protocol appears to be [little-endian](https://en.wikipedia.org/wiki/Endianness#Little-endian) in its custom encoding formats. 
 
 ### Expected Traffic 
 Controller units maintain their state internally. As such only _changed_ channel states need to be sent as they change. Some program implementations may choose to occasionally [resend existing state commands](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L107) as a "sanity" measure. Resending state may result in visual glitches caused by resetting effect timers (such as fading) and increases bandwidth use.
@@ -26,7 +25,7 @@ The heartbeat payload is a constant set of 5 magic bytes: `[0x00, 0xFF, 0x81, 0x
 Whether by design or by obfuscation the protocol contains several magic numbers and domain-specific encoding formats. Avoid duplicating these in code implementations as they may change.
 
 ### Brightness
-Brightness is encoded as an unsigned uint8 between `0x01` (100% brightness) and `0xF0` (0% brightness). These values have been captured as output of the LOR Hardware Utility. Values outside these min/max bounds seem to result in indeterminate and unreliable behavior.
+Brightness is encoded as an unsigned byte between `0x01` (100% brightness) and `0xF0` (0% brightness). These values have been captured as output of the LOR Hardware Utility. Values outside these min/max bounds seem to result in indeterminate and unreliable behavior.
 
 You can convert a given value (between [0, 1]) using:
 
