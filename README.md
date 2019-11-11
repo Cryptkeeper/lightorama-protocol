@@ -119,7 +119,7 @@ Multi channel commands utilize the same command IDs and metadata structures as t
 | Controller ID | `byte` | |
 | Command ID | `byte` | Command ID offset by `0x10` |
 | Metadata | `[]byte` | Command ID specific metadata structure |
-| Channel Mask | `[]byte` | Little-endian, length may vary by controller |
+| Channel Mask | `[]byte` | Length may vary by controller |
 | End | `byte` | Always `0x00` |
 
 ### Channel Masking Example
@@ -133,7 +133,7 @@ mask |= 1 << 6 // set bit index 6 (channel 7) to 1
 mask |= 1 << 13 // set bit index 13 (channel 14) to 1
 ```
 
-This mask is then encoded as little-endian hex: `[41, 20]`
+This mask is then encoded as: `[0x20, 0x41]`
 
 ## Extended Commands
 ### Background Fade
