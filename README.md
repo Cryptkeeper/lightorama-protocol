@@ -13,7 +13,7 @@ I am using a `LOR1602WG3` unit at 19.2k with 16 channels. It has a controller ID
 The protocol is in big endian format.
 
 ### Expected Traffic 
-Controller units maintain their state internally. As such only _changed_ channel states need to be sent as they change. Some program implementations, such as [xLights](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L107), may choose to ocassionally resend existing state commands as a "sanity" measure. Resending state may result in visual glitches caused by resetting effect timers (such as fading) and increases bandwidth use.
+Controller units maintain their state internally. As such only _changed_ channel states need to be sent as they change. Some program implementations, such as [xLights](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L107), may choose to occasionally resend existing state commands as a "sanity" measure. Resending state may result in visual glitches caused by resetting effect timers (such as fading) and increases bandwidth use.
 
 ## Heartbeat
 Every 0.5s the LOR Hardware Utility sends a heartbeat payload onto the network. [xLights](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L87) has re-implemented this at a timing value of 0.3s. The exact value does not seem to matter as long as it within a 2 second timeout (this timeout is approximate).
@@ -59,7 +59,7 @@ Given `timeSeconds` as a duration in seconds (such as 0.1s or 5s), you can calcu
 
 As a reference, 2s is encoded as `[0x80, 0xFF]` (with a decimal value of `255`) which defines the break point in the previously mention encoding logic.
 
-Any scale could technically be applied atop this behavior assuming the resulting encoded values stay within the assumed boundries of `5099` (0.1s) and `20` (25s).
+Any scale could technically be applied atop this behavior assuming the resulting encoded values stay within the assumed boundaries of `5099` (0.1s) and `20` (25s).
 
 ### Command IDs
 Command IDs represent a predefined action for the controller to execute.
@@ -72,7 +72,7 @@ Command IDs represent a predefined action for the controller to execute.
 | 0x07 | Shimmer | Sets a channel to shimmer mode. |
 
 ## Commands
-All commands exist within a parent structure containing routing data, a command ID, and **possibly** additional metadata relative with a format relative to the command ID. Commands which do not have additional metadata should ommit the section entirely and should not send empty values.
+All commands exist within a parent structure containing routing data, a command ID, and **possibly** additional metadata relative with a format relative to the command ID. Commands which do not have additional metadata should omit the section entirely and should not send empty values.
 
 ### Parent Structure
 | Name/Value | Byte Length | Data Type | Description |
@@ -119,3 +119,7 @@ An alternate command exists which is an extended form of the Fade command and do
 | End Brightness | 1 | byte | The brightness to end the fade at. |
 | Duration | 2 | []byte | The encoded duration of the fade. |
 | 0x00 | 1 | byte | End padding byte. |
+
+## Reference Implementations
+- [xLights](https://github.com/smeighan/xLights) is a LOR-like C++ program which offers support for LOR controller units. 
+- [go-lightorama](https://github.com/Cryptkeeper/go-lightorama) is a Go library implemented given this documentation.
