@@ -16,7 +16,7 @@ The protocol is in big endian format.
 Controller units maintain their state internally. As such only _changed_ channel states need to be sent as they change. Some program implementations may choose to occasionally [resend existing state commands](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L107) as a "sanity" measure. Resending state may result in visual glitches caused by resetting effect timers (such as fading) and increases bandwidth use.
 
 ## Heartbeat
-Every 0.5s the LOR Hardware Utility sends a heartbeat payload onto the network. [xLights](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L87) has re-implemented this at a timing value of 0.3s. The exact value does not seem to matter as long as it within a 2 second timeout (this timeout is approximate).
+Every 0.5s the LOR Hardware Utility sends a heartbeat payload onto the network. The exact value does not seem to matter as long as it within a 2 second timeout (this timeout is approximate).
 
 If the controller unit has not recently received a heartbeat payload, it will consider itself not connected and become inactive. On my unit, this results in it not processing additional commands.
 
