@@ -1,10 +1,12 @@
 # Light-O-Rama Communication Protocol
-This documentation covers the Light-O-Rama (LOR) communication protocol for [AC lighting control units](http://www1.lightorama.com/pro-ac-light-controllers/) such as the LOR160X series. It has been manually reverse engineered using the [LOR Hardware Utility](http://www.lightorama.com/help/index.html?hardware_utility.htm), serial port monitoring software and a `LOR1602WG3` unit.
+This documentation covers the Light-O-Rama (LOR) communication protocol for [AC lighting control units](http://www1.lightorama.com/pro-ac-light-controllers/). It has been manually reverse engineered using the [LOR Hardware Utility](http://www.lightorama.com/help/index.html?hardware_utility.htm), serial port monitoring software and a `LOR1602WG3` unit.
 
-Given the reverse engineered nature, this documentation should be considered incomplete, incorrect and outdated. It is provided as is. 
+Given the reverse engineered nature, this documentation should be considered incomplete, incorrect and outdated. 
+
+It is provided as is. 
 
 ## Configuration
-I am using a `LOR1602WG3` unit at 19.2k with 16 channels. It has a controller ID of 0x01. The baud rate for a LOR network is heavily dependant on its usage and hardware. Check out [LOR's documentation](http://www1.lightorama.com/network-speeds/) for selecting from the available baud rates given your setup.
+I am using a `LOR1602WG3` unit at 19.2k with 16 channels. It has a controller ID of 0x01. The baud rate for a LOR network is heavily dependant on its usage and hardware. Check out [LOR's documentation](http://www1.lightorama.com/network-speeds/) for selecting a baud rate given your setup.
 
 ## Network Protocol
 ### Format
@@ -16,13 +18,13 @@ Controller units maintain their state internally. As such only _changed_ channel
 ## Heartbeat
 Every 0.5s the LOR Hardware Utility sends a heartbeat payload onto the network. [xLights](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L87) has re-implemented this at a timing value of 0.3s. The exact value does not seem to matter as long as it within a 2 second timeout (this timeout is approximate).
 
-If the controller unit has not recently received a heartbeat payload, it will consider itself not connected and become inactive.
+If the controller unit has not recently received a heartbeat payload, it will consider itself not connected and become inactive. On my unit, this results in it not processing additional commands.
 
 The heartbeat payload is a constant set of 5 magic bytes. 
 `0x00, 0xFF, 0x81, 0x56, 0x00`
 
 ## Magic Numbers & Encoding Formats
-Whether by design or by obfuscation the protocol contains several magic numbers and domain-specific encoding formats.
+Whether by design or by obfuscation the protocol contains several magic numbers and domain-specific encoding formats. Avoid duplicating these in code implementations as they may change.
 
 ### Brightness
 Brightness is encoded as an unsigned uint8 between 0x01 (100% brightness) and 0xF0 (0% brightness). These values have been captured as output of the LOR Hardware Utility. Values outside these min/max bounds seem to result in indeterminate and unreliable behavior.
@@ -109,10 +111,10 @@ An alternate command exists which is an extended form of the Fade command and do
 | - | - | - | - |
 | 0x00 | 1 | byte | Start padding byte. |
 | Controller ID | 1 | byte | ID of the controller that should handle the command. |
-| Additional Command ID | 1 | byte | The command ID of the additional command (such as `Twinkle` or `Shimmer`). |
+| Command ID | 1 | byte | The command ID of the additional command (such as `Twinkle`). |
 | Channel ID | 1 | byte | Channel ID for perform the command on. |
 | 0x81 | 1 | byte | Denotes extended command statement? |
-| Command ID | 1 | byte | The base command ID (such as `Fade`). |
+| Base Command ID | 1 | byte | The base command ID (such as `Fade`). |
 | Start Brightness | 1 | byte | The brightness to start the fade at. |
 | End Brightness | 1 | byte | The brightness to end the fade at. |
 | Duration | 2 | []byte | The encoded duration of the fade. |
