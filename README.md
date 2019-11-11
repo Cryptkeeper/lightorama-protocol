@@ -5,7 +5,7 @@ Given the reverse engineered nature, this documentation should be considered inc
 
 It is provided as is. 
 
-## Configuration
+## Test Environment
 I am using a `LOR1602WG3` unit with 16 channels, an ID of `0x01`, and a 19.2K baud rate. The baud rate for a LOR network is heavily dependant on its usage. Check out [LOR's documentation](http://www1.lightorama.com/network-speeds/) for selecting a baud rate.
 
 ## Network
@@ -17,7 +17,7 @@ Every 0.5s the LOR Hardware Utility sends a heartbeat payload onto the network.
 
 If the unit has not recently received a heartbeat payload, it will mark itself not connected and become inactive. The timeout value seems to be around 2 seconds.
 
-## Magic Numbers & Encoding Formats
+## Magic Numbers & Formats
 Whether by design or by obfuscation the protocol contains several magic numbers and domain-specific encoding formats. Avoid duplicating these in code implementations as they may change.
 
 ### Heartbeat Payload
