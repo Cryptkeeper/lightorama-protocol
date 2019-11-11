@@ -109,7 +109,7 @@ None.
 
 ## Multi Channel Commands
 Multi channel commands utilize the same command IDs and metadata structures as their single channel command equivalents with some notable differences:
-- Instead of supplying a channel ID, a bitmask is sent with a length corresponding to the amount of channels rounded to the nearest multiple of 8. Channels represented by 0 bit values in this mask are ignored and maintain their previous state.
+- Instead of supplying a channel ID, a bitmask is sent with a length corresponding to the amount of channels rounded to the nearest multiple of 8. Channels with 0 value bits are ignored and maintain their previous state.
 - Command IDs are offset by `0x10`. You can determine the multi channel equivalent of a command ID using `multiCommandId = 0x10 | commandId`. The `0x10` offset (16) *may* be a length indicator for the bitmask length.
 
 ### Parent Structure
@@ -126,12 +126,12 @@ Multi channel commands utilize the same command IDs and metadata structures as t
 The channel mask for channels 1, 7 and 14 in binary is `0010 0000 0100 0001`.
 
 This can be calculated in code like so:
-`
+```
 var mask uint16
 mask |= 1 << 0 // set bit index 0 (channel 1) to 1
 mask |= 1 << 6 // set bit index 6 (channel 7) to 1
 mask |= 1 << 13 // set bit index 13 (channel 14) to 1
-`
+```
 
 This mask is then encoded as little-endian hex: `[41, 20]`
 
