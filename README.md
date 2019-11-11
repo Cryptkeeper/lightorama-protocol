@@ -85,7 +85,7 @@ Single channel commands exist within a parent structure containing routing data,
 | Header | `uint8` | Always `0x00` |
 | Controller ID | `uint8` | |
 | Command ID | `uint8` | |
-| Metadata | `[]uint8` | Command ID specific metadata structure |
+| Metadata | | Command ID specific metadata structure |
 | Channel ID | `uint8` | |
 | End | `uint8` | Always `0x00` |
 
@@ -122,8 +122,8 @@ Multi channel commands utilize the same command IDs and metadata structures as t
 | Header | `uint8` | Always `0x00` |
 | Controller ID | `uint8` | |
 | Command ID | `bytuint8e` | Command ID offset by `0x10` |
-| Metadata | `[]uint8` | Command ID specific metadata structure |
-| Channel Mask | `[]uint8` | Length may vary by controller |
+| Metadata | | Command ID specific metadata structure |
+| Channel Mask | | Length may vary by controller |
 | End | `uint8` | Always `0x00` |
 
 ### Channel Masking Example
@@ -138,6 +138,9 @@ mask |= 1 << 13 // set bit index 13 (channel 14) to 1
 ```
 
 This mask is then encoded as: `[0x20, 0x41]`
+
+### Notes
+- Unlike other multi channel commands, the `On` command appears to reset the state of 0 bit value channels. This may indicate documentation errors.
 
 ## Extended Commands
 ### Background Fade
