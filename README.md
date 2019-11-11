@@ -12,17 +12,20 @@ I am using a `LOR1602WG3` unit at 19.2k with 16 channels. It has a controller ID
 LOR units maintain their state internally; only _changed_ channel states need to be sent. Some program implementations may choose to occasionally [resend existing state commands](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L107) as a "sanity" measure. Resending state may result in visual glitches caused by resetting effect timers and increases bandwidth use.
 
 ## Heartbeat
-Every 0.5s the LOR Hardware Utility sends a heartbeat payload onto the network. The exact value does not seem to matter as long as it within a 2 second timeout (this timeout is approximate).
+Every 0.5s the LOR Hardware Utility sends a heartbeat payload onto the network. 
 
-If the controller unit has not recently received a heartbeat payload, it will consider itself not connected and become inactive. On my unit, this results in it not processing additional commands.
-
-The heartbeat payload is a constant set of 5 magic bytes: `[0x00, 0xFF, 0x81, 0x56, 0x00]`
+If the unit has not recently received a heartbeat payload, it will mark itself not connected and become inactive. The timeout value seems to be around 2 seconds.
 
 ## Magic Numbers & Encoding Formats
 Whether by design or by obfuscation the protocol contains several magic numbers and domain-specific encoding formats. Avoid duplicating these in code implementations as they may change.
 
+### Heartbeat
+The heartbeat payload is a constant set of 5 magic bytes: `[0x00, 0xFF, 0x81, 0x56, 0x00]`
+
+`0xFF` likely represents a broadcast since its index is typically used for routing information.
+
 ### Brightness
-Brightness is encoded as an unsigned byte between `0x01` (100% brightness) and `0xF0` (0% brightness). These values have been captured as output of the LOR Hardware Utility. Values outside these min/max bounds seem to result in indeterminate and unreliable behavior.
+Brightness is encoded as a `uint8` between `0x01` (100% brightness) and `0xF0` (0% brightness). These values have been captured as output of the LOR Hardware Utility. Values outside these min/max bounds seem to result in indeterminate and unreliable behavior.
 
 You can convert a given value (between [0, 1]) using:
 
@@ -33,11 +36,8 @@ You can convert a given value (between [0, 1]) using:
 This example results in a linear brightness curve. Some program implementations, such as xLights, may use a [custom curve](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L66). The brightness curve's behavior is up to the developer and is not restricted by the hardware beyond the previously specified min/max values.
 
 ### Durations
-Durations are encoded in a unique `[2]byte` format. The method for encoding into this format has been derived from the assumption that durations have a minimum value of 0.1s and a maximum of 25s (as offered by the LOR Hardware Utility).
+This encoding method has been derived from the assumption that durations have a minimum value of 0.1s and a maximum of 25s - as offered by the LOR Hardware Utility.
 
-While the LOR Hardware Utility only offers durations in increments by 0.1s, the encoding format does allow (while variable) additional precision however your mileage will vary depending on its usage.
-
-#### Encoding
 Before being encoded, the value must be scaled. The scale used is exponential*ish* and offers higher precision for lower value durations. For example, the delta of the scaled values of 0.1s and 0.2s is 232x larger than the delta between the scaled values of 2.1s and 2.2s.
 
 Given `timeSeconds` as a duration in seconds (such as 0.1s or 5s), you can calculate its scaled value as:
@@ -56,15 +56,16 @@ Given `timeSeconds` as a duration in seconds (such as 0.1s or 5s), you can calcu
 | 25s | 20 | `[0x80, 0x14]` |
 
 #### Notes
-As a reference, 2s is encoded as `[0x80, 0xFF]` (with a decimal value of `255`) which defines the break point in the previously mention encoding logic.
-
-Any scale could technically be applied atop this behavior assuming the resulting encoded values stay within the assumed boundaries of `5099` (0.1s) and `20` (25s).
+- As a reference, 2s is encoded as `[0x80, 0xFF]` (with a decimal value of `255`) which defines the break point in the previously mention encoding logic.
+- Any scale could technically be applied atop this behavior assuming the resulting encoded values stay within the assumed boundaries of `5099` (0.1s) and `20` (25s).
+- While the LOR Hardware Utility only offers durations in increments by 0.1s, the encoding format does allow (while variable) additional precision however your mileage will vary depending on its usage.
 
 ### Command IDs
 Command IDs represent a predefined action for the controller to execute.
 
 | Name | Value | Description |
 | - | - | - |
+| On | `0x01` | Sets a channel to 100% brightness |
 | Set Brightness | `0x03` |Sets a channel's brightness |
 | Fade | `0x04` | Fades a channel between two brightness values |
 | Set Twinkle | `0x06` | Sets a channel to twinkling mode |
@@ -81,25 +82,28 @@ Single channel commands exist within a parent structure containing routing data,
 ### Parent Structure
 | Field | Data Type | Notes |
 | - | - | - |
-| Header | `byte` | Always `0x00` |
-| Controller ID | `byte` | |
-| Command ID | `byte` | |
-| Metadata | `[]byte` | Command ID specific metadata structure |
-| Channel ID | `byte` | |
-| End | `byte` | Always `0x00` |
+| Header | `uint8` | Always `0x00` |
+| Controller ID | `uint8` | |
+| Command ID | `uint8` | |
+| Metadata | `[]uint8` | Command ID specific metadata structure |
+| Channel ID | `uint8` | |
+| End | `uint8` | Always `0x00` |
 
 ### Metadata Structures
+#### On
+None.
+
 #### Set Brightness
 | Name | Data Type |
 | - | - |
-| Brightness | `byte` |
+| Brightness | `uint8` |
 
 #### Fade
 | Name | Data Type |
 | - | - |
-| Start Brightness | `byte` |
-| End Brightness | `byte` |
-| Duration | `[2]byte` |
+| Start Brightness | `uint8` |
+| End Brightness | `uint8` |
+| Duration | `[2]uint8` |
 
 #### Set Twinkle
 None.
@@ -115,12 +119,12 @@ Multi channel commands utilize the same command IDs and metadata structures as t
 ### Parent Structure
 | Field | Data Type | Notes |
 | - | - | - |
-| Header | `byte` | Always `0x00` |
-| Controller ID | `byte` | |
-| Command ID | `byte` | Command ID offset by `0x10` |
-| Metadata | `[]byte` | Command ID specific metadata structure |
-| Channel Mask | `[]byte` | Length may vary by controller |
-| End | `byte` | Always `0x00` |
+| Header | `uint8` | Always `0x00` |
+| Controller ID | `uint8` | |
+| Command ID | `bytuint8e` | Command ID offset by `0x10` |
+| Metadata | `[]uint8` | Command ID specific metadata structure |
+| Channel Mask | `[]uint8` | Length may vary by controller |
+| End | `uint8` | Always `0x00` |
 
 ### Channel Masking Example
 The channel mask for channels 1, 7 and 14 in binary is `0010 0000 0100 0001`.
@@ -141,16 +145,16 @@ Background Fade enables applying a foreground command atop a background command.
 
 | Field | Data Type | Notes |
 | - | - | - |
-| Header | `byte` | Always `0x00` |
-| Controller ID | `byte` | |
-| Foreground Command ID | `byte` | Only accepts `Set Twinkle` and `Set Shimmer` |
-| Channel ID | `byte` | 
-| Magic Number | `byte` | Always `0x81` (denotes extended command statement?) |
-| Background Command ID | `byte` | Only accepts `Fade` |
-| Start Brightness | `byte` | |
-| End Brightness | `byte` | |
-| Duration | `[2]byte` | |
-| End | `byte` | Always `0x00` |
+| Header | `uint8` | Always `0x00` |
+| Controller ID | `uint8` | |
+| Foreground Command ID | `uint8` | Only accepts `Set Twinkle` and `Set Shimmer` |
+| Channel ID | `uint8` | 
+| Magic Number | `uint8` | Always `0x81` (denotes extended command statement?) |
+| Background Command ID | `uint8` | Only accepts `Fade` |
+| Start Brightness | `uint8` | |
+| End Brightness | `uint8` | |
+| Duration | `[2]uint8` | |
+| End | `uint8` | Always `0x00` |
 
 ## Reference Implementations
 - [xLights](https://github.com/smeighan/xLights) is a LOR-like C++ program which offers support for LOR controller units. 
