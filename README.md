@@ -8,10 +8,11 @@ It is provided as is.
 ## Configuration
 I am using a `LOR1602WG3` unit at 19.2k with 16 channels. It has a controller ID of `0x01`. The baud rate for a LOR network is heavily dependant on its usage and hardware. Check out [LOR's documentation](http://www1.lightorama.com/network-speeds/) for selecting a baud rate.
 
-## Traffic
-LOR units maintain their state internally; only _changed_ channel states need to be sent. Some program implementations may choose to occasionally [resend existing state commands](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L107) as a "sanity" measure. Resending state may result in visual glitches caused by resetting effect timers and increases bandwidth use.
+## Network
+### Stateful Protocol
+Only changed channel states should be sent. Some program implementations may choose to occasionally [resend existing state commands](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L107) as a "sanity" measure. However, this may result in visual glitches caused by resetting effect timers and increases bandwidth use.
 
-## Heartbeat
+### Heartbeat Behavior
 Every 0.5s the LOR Hardware Utility sends a heartbeat payload onto the network. 
 
 If the unit has not recently received a heartbeat payload, it will mark itself not connected and become inactive. The timeout value seems to be around 2 seconds.
@@ -19,7 +20,7 @@ If the unit has not recently received a heartbeat payload, it will mark itself n
 ## Magic Numbers & Encoding Formats
 Whether by design or by obfuscation the protocol contains several magic numbers and domain-specific encoding formats. Avoid duplicating these in code implementations as they may change.
 
-### Heartbeat
+### Heartbeat Payload
 The heartbeat payload is a constant set of 5 magic bytes: `[0x00, 0xFF, 0x81, 0x56, 0x00]`
 
 `0xFF` likely represents a broadcast since its index is typically used for routing information.
@@ -38,9 +39,7 @@ This example results in a linear brightness curve. Some program implementations,
 ### Durations
 This encoding method has been derived from the assumption that durations have a minimum value of 0.1s and a maximum of 25s - as offered by the LOR Hardware Utility.
 
-Before being encoded, the value must be scaled. The scale used is exponential*ish* and offers higher precision for lower value durations. For example, the delta of the scaled values of 0.1s and 0.2s is 232x larger than the delta between the scaled values of 2.1s and 2.2s.
-
-Given `timeSeconds` as a duration in seconds (such as 0.1s or 5s), you can calculate its scaled value as:
+Before being encoded, the value must be scaled. Given `timeSeconds` as a duration in seconds (such as 0.1s or 5s), you can calculate its scaled value as:
 
 `scaledValue = round(maxDuration / (timeSeconds / minDuration)))` 
 
@@ -57,6 +56,7 @@ Given `timeSeconds` as a duration in seconds (such as 0.1s or 5s), you can calcu
 
 #### Notes
 - As a reference, 2s is encoded as `[0x80, 0xFF]` (with a decimal value of `255`) which defines the break point in the previously mention encoding logic.
+- The scale used is exponential*ish* and offers higher precision for lower value durations. For example, the delta of the scaled values of 0.1s and 0.2s is 232x larger than the delta between the scaled values of 2.1s and 2.2s.
 - Any scale could technically be applied atop this behavior assuming the resulting encoded values stay within the assumed boundaries of `5099` (0.1s) and `20` (25s).
 - While the LOR Hardware Utility only offers durations in increments by 0.1s, the encoding format does allow (while variable) additional precision however your mileage will vary depending on its usage.
 
