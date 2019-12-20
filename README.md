@@ -6,7 +6,9 @@ Given the reverse engineered nature, this documentation should be considered inc
 It is provided as is. 
 
 ## Test Environment
-I am using a `LOR1602WG3` unit with 16 channels, an ID of `0x01`, and a 19.2K baud rate. The baud rate for a LOR network is heavily dependant on its usage. Check out [LOR's documentation](http://www1.lightorama.com/network-speeds/) for selecting a baud rate.
+I am using a `LOR1602WG3` unit with 16 channels (see the [datasheet](http://www1.lightorama.com/PDF/LOR160xWg3_Datasheet.pdf)), an ID of `0x01`, and a 19.2K baud rate. The baud rate for a LOR network is heavily dependant on its usage. Check out [LOR's documentation](http://www1.lightorama.com/network-speeds/) for selecting a baud rate.
+
+Light-O-Rama, Inc. provides datasheets and manuals for many of their products at [http://www1.lightorama.com/documentation/](http://www1.lightorama.com/documentation/)
 
 ## Network
 ### Stateful Protocol
@@ -36,8 +38,10 @@ You can convert a given value (between [0, 1]) using:
 
 This example results in a linear brightness curve. Some program implementations, such as xLights, may use a [custom curve](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L66). The brightness curve's behavior is up to the developer and is not restricted by the hardware beyond the previously specified min/max values.
 
+The [datasheet](http://www1.lightorama.com/PDF/LOR160xWg3_Datasheet.pdf) for my `LOR1602WG3` unit specifies "100 intensity levels for dimming". So while you may adjust the brightness curve, you are unable to produce new brightness _levels_.
+
 ### Durations
-This encoding method has been derived from the assumption that durations have a minimum value of 0.1s and a maximum of 25s - as offered by the LOR Hardware Utility.
+As determined from the LOR Hardware Utility (and the [datasheet](http://www1.lightorama.com/PDF/LOR160xWg3_Datasheet.pdf) for my `LOR1602WG3` unit), durations have a minimum value of 0.1s and a maximum of 25s with 256 available levels between those values.
 
 Before being encoded, the value must be scaled. Given `timeSeconds` as a duration in seconds (such as 0.1s or 5s), you can calculate its scaled value as:
 
@@ -58,7 +62,7 @@ Before being encoded, the value must be scaled. Given `timeSeconds` as a duratio
 - As a reference, 2s is encoded as `[0x80, 0xFF]` (with a decimal value of `255`) which defines the break point in the previously mention encoding logic.
 - The scale used is exponential*ish* and offers higher precision for lower value durations. For example, the delta of the scaled values of 0.1s and 0.2s is 232x larger than the delta between the scaled values of 2.1s and 2.2s.
 - Any scale could technically be applied atop this behavior assuming the resulting encoded values stay within the assumed boundaries of `5099` (0.1s) and `20` (25s).
-- While the LOR Hardware Utility only offers durations in increments by 0.1s, the encoding format does allow (while variable) additional precision however your mileage will vary depending on its usage.
+- While the LOR Hardware Utility only offers durations in increments by 0.1s, the encoding format does allow (while variable) additional precision. Your unit however may disregard or round this value ([consult your unit's datasheet](http://www1.lightorama.com/documentation/)).
 
 ### Command IDs
 Command IDs represent a predefined action for the controller to execute.
