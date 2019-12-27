@@ -29,6 +29,7 @@ Additionally, empty bytes are consistently sent over the network. This may be ei
 #### Notes
 * `0x00` does not otherwise appear in the protocol, even in values.
 * To reduce bandwidth usage, you may be able to omit the empty byte command prefix.
+* Commands being sent together only require a single byte to separate them instead of both a prefix and suffix byte.
 
 ### Call System
 The protocol contains a broadcast and call request system, which can be found when using the LOR Hardware Utility to configure unit IDs or search for connected units. Presumably there is an acknowledgement response to many of these packets, but it is currently undocumented.
