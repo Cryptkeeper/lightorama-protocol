@@ -186,8 +186,11 @@ The bit length of the channel mask corresponds to the amount of channels being u
 | Controller ID | `uint8` | |
 | Command ID | `uint8` | Command ID offset by magic number |
 | Metadata | | Command ID specific metadata structure |
+| Chain Index* | `uint8/-` | Only sent when "chaining" multiple multi channel commands |
 | Channel Mask | | Length is dependent on channel count |
 | End | `uint8` | Always `0x00` |
+
+*Chain Index is only sent when chaining multi channel commands due to the full channel configuration being unable to fit within a single channel mask. Its value is the reverse index starting at 1.
 
 ### Command ID Offsets
 Command IDs are offset by a magic number dependent on the length of the channel mask. You can determine the multi channel equivalent of a command ID using `multiCommandId = commandIdOffset | commandId`.
@@ -196,6 +199,13 @@ Command IDs are offset by a magic number dependent on the length of the channel 
 | - | - | - |
 | 8 bits | `0x30` | |
 | 16 bits | `0x10` | `0x10` has a decimal value of 16 (coincidence?) |
+| 16 bits | `0x50` | Only used when chaining commands |
+
+For configurations for more than 16 channels, multiple commands are sent instead, each providing a portion of the full channel mask. Multiple lengths may be mixed together.
+
+#### Notes
+- Channel mask lengths can be mixed. For example, to control 40 channels, 2x 16 bit masks and 1x 8 bit mask may be sent.
+- Controllers safely handle channel masks larger in length than the channel count, however they should be avoided to optimize bandwidth and processing speed.
 
 ### Channel Masking Example
 The channel mask for channels 1, 7 and 14 in binary is `0010 0000 0100 0001`.
@@ -209,6 +219,30 @@ mask |= 1 << 13 // set bit index 13 (channel 14) to 1
 ```
 
 This mask is then encoded as: `[0x20, 0x41]`
+
+### Chaining Example
+Given a controller ID of `0x01` with 64 channels, we can set every channel to 0% brightness using 4 multi channel commands. The chain index is a reverse index, starting at the highest index plus `0x01`, ending at `0x01`. It must not be `0x00`, which marks the end of a command.
+
+```
+# Set Brightness of channels 0-15 (padding bytes omitted)
+0x01 (controller ID)
+0x53 (0x50 chaining command ID offset | 0x03 Set Brightness command ID)
+0xF0 (0% brightness)
+0x03 (chain index of 3)
+0xFF (channel mask pt. 1)
+0xFF (channel mask pt. 2)
+```
+
+Resending this command with a chain index of 2 and 1 would provide channel masks for channels 16-31 and 32-47 respectively. To end the chain, a final command is sent with an _unchained_ command ID offset and without a chain index.
+
+```
+# Set Brightness of channels 48-63 (padding bytes omitted)
+0x01 (controller ID)
+0x13 (16-bit command ID offset | 0x03 Set Brightness command ID)
+0xF0 (0% brightness)
+0xFF (channel mask pt. 1)
+0xFF (channel mask pt. 2)
+```
 
 ## Controller Commands
 Controller commands impact all channels on a given controller ID without any filtering capability. They are used for full state changes and are primarily a bandwidth/execution optimization.
