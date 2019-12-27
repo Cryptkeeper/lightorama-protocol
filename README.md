@@ -186,11 +186,9 @@ The bit length of the channel mask corresponds to the amount of channels being u
 | Controller ID | `uint8` | |
 | Command ID | `uint8` | Command ID offset by magic number |
 | Metadata | | Command ID specific metadata structure |
-| Chain Index* | `uint8/-` | Only sent when "chaining" multiple multi channel commands |
+| Chain Index | `uint8`/- | Only sent when chaining multi channel commands due to the full channel configuration being unable to fit within a single channel mask. |
 | Channel Mask | | Length is dependent on channel count |
 | End | `uint8` | Always `0x00` |
-
-*Chain Index is only sent when chaining multi channel commands due to the full channel configuration being unable to fit within a single channel mask. Its value is the reverse index starting at 1.
 
 ### Command ID Offsets
 Command IDs are offset by a magic number dependent on the length of the channel mask. You can determine the multi channel equivalent of a command ID using `multiCommandId = commandIdOffset | commandId`.
@@ -204,7 +202,7 @@ Command IDs are offset by a magic number dependent on the length of the channel 
 For configurations for more than 16 channels, multiple commands are sent instead, each providing a portion of the full channel mask. Multiple lengths may be mixed together.
 
 #### Notes
-- Channel mask lengths can be mixed. For example, to control 40 channels, 2x 16 bit masks and 1x 8 bit mask may be sent.
+- Channel mask lengths can be mixed. For example, 40 channels would be sent as 2x 16 bit masks and 1x 8 bit mask.
 - Controllers safely handle channel masks larger in length than the channel count, however they should be avoided to optimize bandwidth and processing speed.
 
 ### Channel Masking Example
