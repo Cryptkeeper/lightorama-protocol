@@ -1,6 +1,7 @@
 # Undocumented Packet Captures
 These are packet captures with a given context that have not yet been fully documented.
 
+## Toggle?
 ```
 Unit: 		0x01
 Channel: 	17
@@ -36,8 +37,11 @@ Off:		0x00 0x01 0x51 0xc8 0x00 0x00
 
 Each `Off` command does not appear to contain channel IDs, instead a value of `0xc7` or `0xc8`. Additionally, if the usage of `0x51` is believed to be a multi channel command usage of `0x01`, then we should not be seeing these commands turn the channels off, and instead maintain their _on_ state.
 
+## All Off
 `0x00 0x01 0x41 0x00 0x00`
 Used to turn off all 8 channels in an 8 channel configuration.
 
+## All On?
 `0x00 0x0 0x31 0xff 0x00 0x00`
 Used to turn on all 8 channels in an 8 channel configuration.
+
