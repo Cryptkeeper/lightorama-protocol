@@ -78,10 +78,13 @@ Command IDs represent a predefined action for the controller to execute.
 ### Channel IDs
 Channel IDs can be determined by taking the index of the channel (starting at 0, not 1) plus 128 (`0x80`). 
 
-This can be easily implemented in code as `channelId = 0x80 | channelIndex`. 
+This can be easily implemented in code as `channelId = 0x80 | channelIndex`.
+
+Channel numbers greater than or equal to 127 (the max value that can fit a `uint8` with the `0x80` offset) should be encoded as multiple bytes in [big endian format](https://en.wikipedia.org/wiki/Endianness). Each byte should still be offset by `0x80`.
+
 
 ## Single Channel Commands
-Single channel commands exist within a parent structure containing routing data, a command ID, and **possibly** additional metadata relative with a format relative to the command ID. Commands which do not have additional metadata should omit the section entirely and should not send empty values.
+Single channel commands exist within a parent structure containing routing data, a command ID, and **possibly** additional metadata with a format relative to the command ID. Commands which do not have additional metadata should omit the section entirely and should not send empty values.
 
 ### Parent Structure
 | Field | Data Type | Notes |
