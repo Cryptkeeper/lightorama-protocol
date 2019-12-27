@@ -215,6 +215,44 @@ Background Fade enables applying a foreground command atop a background command.
 | Duration | `[2]uint8` | |
 | End | `uint8` | Always `0x00` |
 
+## Undocumented Packet Captures
+These are packet captures with a given context that have not yet been fully documented.
+
+```
+Unit: 		0x01
+Channel: 	17
+On: 		0x00 0x01 0x51 0x41 0x01 0x00 0x00
+Off: 		0x00 0x01 0x51 0xc1 0x00 0x00
+```
+
+```
+Unit:		0x01
+Channel: 	18
+On:			0x00 0x01 0x51 0x41 0x02 0x00 0x00
+Off:		0x00 0x01 0x51 0xc1	0x00 0x00
+```
+
+```
+Unit:		0x01
+Channel:	129
+On:			0x00 0x01 0x51 0x48 0x01 0x00 0x00
+Off:		0x00 0x01 0x51 0xc8 0x00 0x00
+```
+128 (`0x80` channel ID base) + 129 (channel) = 257 - 1 (index offset) = 256
+
+256 = `0x100` = `[0x01, 0x00]`
+
+```
+Unit:		0x01
+Channel:	130
+On:			0x00 0x01 0x51 0x48 0x02 0x00 0x00
+Off:		0x00 0x01 0x51 0xc8 0x00 0x00
+```
+
+`0x51` appears to denote the usage of a `0x01` (On) command in a multi channel usage (currently only `0x30` and `0x10` are documented, but since they only support up to 16 bits, this likely means `0x50` denotes a higher bit count.)
+
+Each `Off` command does not appear to contain channel IDs, instead a value of `0xc7` or `0xc8`. Additionally, if the usage of `0x51` is believed to be a multi channel command usage of `0x01`, then we should not be seeing these commands turn the channels off, and instead maintain their _on_ state.
+
 ## Reference Implementations
 - [xLights](https://github.com/smeighan/xLights) is a LOR-like C++ program which offers support for LOR controller units. 
 - [go-lightorama](https://github.com/Cryptkeeper/go-lightorama) is a Go library implemented given this documentation.
