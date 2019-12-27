@@ -79,9 +79,6 @@ The heartbeat payload is a constant set of 5 magic bytes: `[0x00, 0xFF, 0x81, 0x
 
 `0xFF` likely represents a broadcast since its index is typically used for routing information.
 
-### Unit IDs
-Unit IDs begin at `0x01` and end at `0xF0` (240). A unit ID of `0xF1` (241) seems to be used by the search request behavior as an "any" selector.
-
 ### Brightness
 Brightness is encoded as a `uint8` between `0x01` (100% brightness) and `0xF0` (0% brightness). These values have been captured as output of the LOR Hardware Utility. Values outside these min/max bounds seem to result in indeterminate and unreliable behavior.
 
@@ -129,6 +126,9 @@ Command IDs represent a predefined action for the controller to execute.
 | Fade | `0x04` | Fades a channel between two brightness values |
 | Set Twinkle | `0x06` | Sets a channel to twinkling mode |
 | Set Shimmer | `0x07` | Sets a channel to shimmer mode |
+
+### Unit IDs
+Unit IDs begin at `0x01` and end at `0xF0` (240). A unit ID of `0xF1` (241) seems to be used by the search request behavior as an "any" selector.
 
 ### Channel IDs
 Channel IDs can be determined by taking the index of the channel (starting at 0, not 1) plus 128 (`0x80`).
