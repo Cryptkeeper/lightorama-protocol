@@ -209,6 +209,20 @@ mask |= 1 << 13 // set bit index 13 (channel 14) to 1
 
 This mask is then encoded as: `[0x20, 0x41]`
 
+## Controller Commands
+Controller commands impact all channels on a given controller ID without any filtering capability. They are used for full state changes and are primarily a bandwidth/execution optimization.
+
+### All Off
+Turns off configured channels for the given controller ID.
+
+| Field | Data Type | Notes |
+| - | - | - |
+| Header | `uint8` | Always `0x00` |
+| Controller ID | `uint8` | |
+| Command ID | `uint8` | Always `0x41` |
+| Magic Number | | Always `0x00` (may not be necessary) |
+| End | `uint8` | Always `0x00` |
+
 ## Extended Commands
 ### Background Fade
 Background Fade enables applying a foreground command atop a background command. This allows execution of multiple single channel commands simultaneously on the same channel ID.
@@ -263,6 +277,12 @@ Off:		0x00 0x01 0x51 0xc8 0x00 0x00
 `0x51` appears to denote the usage of a `0x01` (On) command in a multi channel usage (currently only `0x30` and `0x10` are documented, but since they only support up to 16 bits, this likely means `0x50` denotes a higher bit count.)
 
 Each `Off` command does not appear to contain channel IDs, instead a value of `0xc7` or `0xc8`. Additionally, if the usage of `0x51` is believed to be a multi channel command usage of `0x01`, then we should not be seeing these commands turn the channels off, and instead maintain their _on_ state.
+
+`0x00 0x01 0x41 0x00 0x00`
+Used to turn off all 8 channels in an 8 channel configuration.
+
+`0x00 0x0 0x31 0xff 0x00 0x00`
+Used to turn on all 8 channels in an 8 channel configuration.
 
 ## Reference Implementations
 - [xLights](https://github.com/smeighan/xLights) is a LOR-like C++ program which offers support for LOR controller units. 
