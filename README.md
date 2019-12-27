@@ -19,6 +19,13 @@ Every 0.5s the LOR Hardware Utility sends a heartbeat payload onto the network.
 
 If the unit has not recently received a heartbeat payload, it will mark itself not connected and become inactive. The timeout value seems to be around 2 seconds.
 
+### Empty Bytes
+An empty byte (`0x00`) appears to be used to drive the controller's command execution system and network framing/flushing behavior. Each command is prefixed and suffixed with `0x00` (a value unused elsewhere in the protocol, even in values).
+
+Assumingly an empty byte marks the end of a command, and instructs the controller to execute its command buffer. Prefixing commands with an empty byte ensures the buffer is flushed prior to the new command, improving fault tolerance by preventing corrupt/invalid commands from remaining in the buffer.
+
+Additionally, empty bytes are consistently sent over the network. This may be either additional padding to maintain expected frame lengths, or more likely, a timing signal. Currently no other timed behavior has been documented outside of the heartbeat payload. As such this means that any timing would be done according to each controller's system clock, allowing potential desync between them. This could be prevented by instead having controllers synchronize around a consistent network _and_ command buffer flush.
+
 ### Call System
 The protocol contains a broadcast and call request system, which can be found when using the LOR Hardware Utility to configure unit IDs or search for connected units. Presumably there is an acknowledgement response to many of these packets, but it is currently undocumented.
 
@@ -120,7 +127,7 @@ Command IDs represent a predefined action for the controller to execute.
 | Set Shimmer | `0x07` | Sets a channel to shimmer mode |
 
 ### Channel IDs
-Channel IDs can be determined by taking the index of the channel (starting at 0, not 1) plus 128 (`0x80`). 
+Channel IDs can be determined by taking the index of the channel (starting at 0, not 1) plus 128 (`0x80`).
 
 This can be easily implemented in code as `channelId = 0x80 | channelIndex`.
 
