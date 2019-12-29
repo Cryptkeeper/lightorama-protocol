@@ -24,7 +24,7 @@ An empty byte (`0x00`) appears to be used to drive the controller's command exec
 
 An empty byte marks the end of a command which instructs the controller to execute its command buffer. Prefixing commands with an empty byte ensures the buffer is flushed prior to the new command, improving fault tolerance by preventing corrupt/invalid commands from remaining in the buffer.
 
-Additionally, empty bytes are consistently sent over the network. This may be either additional padding to maintain expected frame lengths, or more likely, a timing signal. This would enable controllers to synchronize around a consistent signal, while additionally flushing the serial port and command buffer.
+Additionally, empty bytes are consistently sent over the network. This may be either additional padding to maintain expected frame lengths or to simply ensure that even with data loss, the command buffer is still being flushed.
 
 #### Notes
 * `0x00` does not otherwise appear in the protocol, even in values.
