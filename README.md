@@ -24,12 +24,11 @@ An empty byte (`0x00`) appears to be used to drive the controller's command exec
 
 An empty byte marks the end of a command which instructs the controller to execute its command buffer. Prefixing commands with an empty byte ensures the buffer is flushed prior to the new command, improving fault tolerance by preventing corrupt/invalid commands from remaining in the buffer.
 
-Additionally, empty bytes are consistently sent over the network. This may be either additional padding to maintain expected frame lengths or to simply ensure that even with data loss, the command buffer is still being flushed.
+Additionally, empty bytes are consistently sent over the network. This may be either additional padding to maintain expected frame lengths, flush an outbound queue, or to simply ensure that even with data loss, the command buffer is still being flushed.
 
 #### Notes
 * `0x00` does not otherwise appear in the protocol, even in values.
-* To reduce bandwidth usage, you may be able to omit the empty byte command prefix.
-* Commands being sent together only require a single byte to separate them instead of both a prefix and suffix byte.
+* To reduce bandwidth usage, you may be able to omit the empty byte command prefix. The LOR Sequencer appears to automatically do this when sending multiple commands.
 
 ### Call System
 The protocol contains a broadcast and call request system, which can be found when using the LOR Hardware Utility to configure unit IDs or search for connected units. Presumably there is an acknowledgement response to many of these packets, but it is currently undocumented.
