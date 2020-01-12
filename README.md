@@ -273,4 +273,5 @@ Background Fade enables applying a foreground command atop a background command.
 
 ## Reference Implementations
 - [xLights](https://github.com/smeighan/xLights) is a LOR-like C++ program which offers support for LOR controller units. 
+- [fpp](https://github.com/FalconChristmas/fpp/blob/master/src/channeloutput/LOR.cpp) is a sequence scheduling and player program which supports LOR output.
 - [go-lightorama](https://github.com/Cryptkeeper/go-lightorama) is a Go library implemented given this documentation.
