@@ -1,6 +1,47 @@
 # Undocumented Packet Captures
 These are packet captures with a given context that have not yet been fully documented.
 
+### Call System
+The protocol contains a broadcast and call request system, which can be found when using the LOR Hardware Utility to configure unit IDs or search for connected units. Presumably there is an acknowledgement response to many of these packets, but it is currently undocumented.
+
+**WARNING: This behavior is _especially_ underdocumented.**
+
+#### Is Unit Connected
+Requests an acknowledgement response from a controller with the specified ID. When refreshing connected units, the LOR Hardware Utility will send this packet to each connected serial port, iterating from unit ID `0x01` to the "Max Unit ID" as specified in the LOR Hardware Utility. Each packet will be sent 5 times, per unit ID, per connected serial port.
+
+| Field | Data Type | Notes |
+| - | - | - |
+| Header | `uint8` | Always `0x00` |
+| Controller ID | `uint8` | |
+| Magic Number | `uint8` | Always `0x88` |
+| Magic Number | `uint8` | Always `0x29` |
+| Magic Number | `uint8` | Always `0x2D` |
+| End | `uint8` | Always `0x00` |
+
+#### Set Unit ID
+Sets _ALL_ connected unit IDs to a specified value. Given unit IDs have a maximum value of `0xF0` (240), the usage of `0xF1` (241) as a controller ID implies it may have a usage as an "any" unit ID. Conflictingly however, `0xFF` is also used by the heartbeat payload as a broadcast flag.
+
+| Field | Data Type | Notes |
+| - | - | - |
+| Header | `uint8` | Always `0x00` |
+| Controller ID | `uint8` | Always `0xF1` |
+| Magic Number | `uint8` | Always `0x88` |
+| Magic Number | `uint8` | Always `0x2A` |
+| Magic Number | `uint8` | Always `0x32` |
+| End | `uint8` | Always `0x00` |
+
+#### Change Unit ID
+Changes the ID of a unit, given its current ID and the new ID. This is used to safely change the ID of a specific unit, even with multiple controllers connected.
+
+| Field | Data Type | Notes |
+| - | - | - |
+| Header | `uint8` | Always `0x00` |
+| Current Controller ID | `uint8` | |
+| Magic Number | `uint8` | Always `0x88` |
+| Magic Number | `uint8` | Always `0x2A` |
+| Magic Number | `uint8` | Always `0x2D` |
+| End | `uint8` | Always `0x00` |
+
 ## Toggle?
 ```
 Unit: 		0x01
