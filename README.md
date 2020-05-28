@@ -45,7 +45,7 @@ You can convert a given value (between [0, 1]) using:
 
 `byteBrightness = floatBrightness * (maxBrightness - minBrightness) + minBrightness` 
 
-...where `maxBrightness` and `minBrightness` are `0xF0` and `0x01` respectively. 
+...where `maxBrightness` and `minBrightness` are `0x01` and `0xF0` respectively. 
 
 This example results in a linear brightness curve. Some program implementations, such as xLights, may use a [custom curve](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L66). The brightness curve's behavior is up to the developer and is not restricted by the hardware beyond the previously specified min/max values.
 
