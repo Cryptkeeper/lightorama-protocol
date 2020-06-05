@@ -16,9 +16,7 @@ This documentation covers the Light-O-Rama (LOR) communication protocol for [AC 
 * [LOR_DeviceFile.txt](http://www1.lightorama.com/downloads/LOR_DeviceFile.txt)
 
 # Test Environment
-From my testing, the protocol seems consistent across firmware versions and is unlikely to change. You can view your current firmware version in the [LOR Hardware Utility](http://www.lightorama.com/help/index.html?hardware_utility.htm).
-
-I have provided my firmware and unit models for reference.
+From my testing, the protocol seems consistent across firmware versions and is unlikely to change. You can view your current firmware version in the [LOR Hardware Utility](http://www.lightorama.com/help/index.html?hardware_utility.htm). I have provided my firmware and unit models for reference.
 
 | Unit Model | Firmware Version | Channel Count |
 | --- | --- | --- |
@@ -32,7 +30,7 @@ I am using a 57.6K baud rate and the Light-O-Rama provided [USB-RS485 adapter](h
 
 # Network
 ## Fault Tolerance
-Messages sent to the network are generally "fire and forget". Your software implementation SHOULD avoid resending previous messages since it may interrupt ongoing effect executions (like restarting a timer), resulting in channel output glitches.
+Messages are generally "fire and forget". Your software implementation SHOULD avoid resending previous messages since it may interrupt ongoing effect executions (like restarting a timer), resulting in channel output glitches.
 
 Some software implementations may choose to ocassionally [repeatedly resend messages](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L107) as a "sanity" measure. However this mostly wastes network bandwidth and risks the aforementioned glitches. If you choose to repeatedly resend messages, avoid sending messages which execute over a period of time.
 
@@ -59,24 +57,22 @@ It is RECOMMENDED you prefix messages with an empty byte to ensure the buffer is
 
 # Data Types & Encoding Formats
 ## Unit IDs
-The LOR protocol supports up to 240 *unique* unit IDs. Given that `0x00` is effectively unavailable namespace, the valid unit ID range is `0x01` to `0xF0` (240). Any "unit ID" above `0xF0` is "reserved namespace", with some values representing other purposes.
+The LOR protocol supports up to 240 *unique* unit IDs. Given that `0x00` is effectively unavailable namespace, the valid unit ID range is `0x01` to `0xF0` (240). Any unit ID above `0xF0` is reserved, often used for routing information.
+
+Since messages are not consumed by units, multiple units may have the same unit ID. They would simply act as clones of each other when receiving messages. This is however discouraged since software implementations may not properly handle multiple responses to messages direct at a single unit ID.
 
 | Value | Purpose |
 | --- | --- |
 | `0xFF` | "Any unit ID", used for broadcasting messages |
 | `0xFE` | Represents the controlling program, used for replying to messages |
 | `0xFB` | Used by the LOR Hardware Utility when uploading MP3 & sequence files |
-| `0xFA` | Used within an unknown message sent by the LOR Hardware Utility when the program is first launched (`[0xFA, 0x88, 0x31, 0x2D]`) |
+| `0xFA` | Used within an unknown message sent by the LOR Hardware Utility when the program is first launched |
 | `0xF1` | Used by the LOR Hardware Utility when setting "Any" unit's ID |
 
 **Tip:** Wherever a unit ID is specified, you may choose to subsitute it for the `0xFF` broadcast flag. This makes it easy to avoid manually sending the same message to multiple units.
 
-**Warning:** Since messages are not consumed by units, multiple units may have the same unit ID. They would simply act as clones of each other when receiving messages. This is however discouraged since software implementations may not properly handle multiple responses to messages direct at a single unit ID.
-
 ## Channel IDs
-While channel IDs start at 1 within LOR software and user guides, they start at 0 within the protocol. This documentation will also consider channel IDs as starting at 0. Since `0x00` values are reserved by the protocol, channel IDs are OR'd against `0x80`.
-
-The following code sample shows how to calculate a protocol equivalent of a channel ID by ORing it, as well as reversing this by taking its AND of NOT `0x80`.
+While channel IDs start at 1 within LOR software and user guides, they start at 0 within the protocol. This documentation will also consider channel IDs as starting at 0. The following code sample shows how to calculate a protocol equivalent of a channel ID by ORing it, as well as reversing this by taking its AND of NOT `0x80`. Channel numbers greater than or equal to 127 (the max value that can fit a `uint8` with the `0x80` offset) should be encoded as multiple bytes in [big endian format](https://en.wikipedia.org/wiki/Endianness). Each byte should still be offset by `0x80`.
 
 ```
 uint8_t to_protocol_channel(uint8_t channel) {
@@ -88,12 +84,11 @@ uint8_t from_protocol_channel(uint8_t protocol_channel) {
 }
 ```
 
-Channel numbers greater than or equal to 127 (the max value that can fit a `uint8` with the `0x80` offset) should be encoded as multiple bytes in [big endian format](https://en.wikipedia.org/wiki/Endianness). Each byte should still be offset by `0x80`.
-
 ## Brightness
 Brightness is encoded as a `uint8` between `0x01` (100% brightness) and `0xF0` (0% brightness). Values outside these min/max bounds seem to result in indeterminate and unreliable behavior.
 
-You can convert a normalized value [0, 1] into a brightness value using `brightness_value = normalized_value * (0x01 - 0xF0) + 0xF0`
+You can convert a normalized value [0, 1] into a brightness value like so:
+`brightness_value = normalized_value * (0x01 - 0xF0) + 0xF0`
 
 ### Notes
 * The provided code sample results in a linear brightness curve. Some program implementations, such as xLights, may use a [custom curve](https://github.com/smeighan/xLights/blob/master/xLights/outputs/LOROutput.cpp#L66) function. The brightness curve's behavior is up to the developer and is not restricted by the hardware beyond the previously specified min/max values.
@@ -129,7 +124,7 @@ uint16_t lor_duration(float seconds) {
 | 25s | 20 | `0x8014` |
 
 ### Notes
-- As a reference, a 2 second duration is encoded as `0x80FF` which defines the break point in the provided encoding code sample.
+- Any duration greater than 2 seconds fits within a single byte.
 - The scale used is exponential*ish* and offers higher precision for lower value durations. For example, the delta of the scaled values of 0.1s and 0.2s is 232x larger than the delta between the scaled values of 2.1s and 2.2s.
 - Any scale could technically be applied atop this behavior assuming the resulting encoded values stay within the value range. Your unit however may disregard or round this value - [consult your unit's datasheet](http://www1.lightorama.com/documentation/).
 
