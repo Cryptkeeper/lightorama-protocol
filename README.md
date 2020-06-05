@@ -88,6 +88,7 @@ uint8_t from_protocol_channel(uint8_t protocol_channel) {
 Brightness is encoded as a `uint8` between `0x01` (100% brightness) and `0xF0` (0% brightness). Values outside these min/max bounds seem to result in indeterminate and unreliable behavior.
 
 You can convert a normalized value [0, 1] into a brightness value like so:
+
 `brightness_value = normalized_value * (0x01 - 0xF0) + 0xF0`
 
 ### Notes
