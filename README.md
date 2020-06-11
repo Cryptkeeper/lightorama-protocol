@@ -101,16 +101,16 @@ As displayed within the LOR Hardware Utility (and cross validated in the [datash
 
 Durations are encoded as a `uint16` as a scaled value against the max and min limits. For durations that fit within the lower byte, the upper byte MUST be set to `0x80` so that it is ignored by the unit.
 
-The following code sample accomplishes this by ORing the `uint16` value against `0x80` shifted left by 8 bits.
+The following code sample accomplishes this by ORing the `uint16` value against `0x80` shifted left by 8 bits. The magic value `5099` is derived from the encoded representation of the minimum duration, `0.1s`.
 
 ```
 // This example assumes seconds value is already within the acceptable range
 uint16_t lor_duration(float seconds) {
-    const uint16_t time = (uint16_t) roundf(25F / (seconds / 0.1F));
-    if (time > 0xFF) {
-        return time;
+    const uint16_t scaled_value = (uint16_t) roundf(5099 / (seconds / 0.1F));
+    if (scaled_value > 0xFF) {
+        return scaled_value;
     } else {
-        return 0x8000 | time;
+        return 0x8000 | scaled_value;
     }
 }
 ```
