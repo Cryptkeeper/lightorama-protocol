@@ -1,7 +1,5 @@
 # Light-O-Rama Compressed Sequence File Format
-The _[Light-O-Rama](http://www.lightorama.com) Compressed Sequence_ file format (".lcs") is a compressed version of the XML based Light-O-Rama sequence file format (".lms" and ".las"). While it uses a custom compression scheme and file structure, it struggles to achieve compression ratios under 50%.
-
-This documentation has been manually reverse engineered and is incomplete. 
+The _[Light-O-Rama](http://www.lightorama.com) Compressed Sequence_ file format (".lcs") is a compressed version of the XML based Light-O-Rama sequence file format (".lms" and ".las"). The Light-O-Rama Compressed Sequence file format uses a custom compression scheme and file structure, with the majority undocumented.
 
 See the ["Compressed Sequences"](http://www.lightorama.com/help/index.html?concept_compressed_sequences.htm) Light-O-Rama help guide page for more information.
 
