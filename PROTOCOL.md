@@ -126,6 +126,8 @@ Actions are predefined lighting effects, typically built into the hardware. Thes
 | Set Twinkle | `0x06` | Sets a channel to twinkling mode | No |
 | Set Shimmer | `0x07` | Sets a channel to shimmer mode | No |
 
+See Light-O-Rama's [Effects](http://www.lightorama.com/help/index.html?concept_effects.htm) documentation for more information and examples.
+
 ### Metadata Structures
 #### Set Brightness
 | Name | Data Type |
