@@ -22,31 +22,30 @@ The header will be followed by one `0x0A` NL character (for a total of 416 bytes
 A `0x02` STX character marks the start of a series of seemingly always NUL bytes, with a variable length. An additional `0x01` SOH character marks the start of the file's metadata fields. As such, it's recommended software implementions simply seek to the first occurance of `0x01` to begin reading.
 
 ## Metadata Fields
-Following the header, the metadata fields structure is used to store authorship and timestamp information.
+Following the header, the metadata fields structure is used to store authorship and timestamp information. The metadata fields are not keyed, and instead a fixed encoding order is used in order to interpret the value of each metadata field. Unfortunately this means the purpose of each field is static, and new metadata fields may not be easily added. More importantly, metadata fields may not be omitted entirely.
 
-Each metadata field starts with a `uint16` value indicating its *character* length (not byte length) encoded as UTF-16 LE, followed by a `uint16` NUL value, and then the encoded metadata field value.
+Each metadata field starts with a `uint32` value indicating its *character* length (not byte length) and then the encoded metadata field value as a `uint16[]`. A metadata field may be "omitted" by encoding a character length value of 0 and including no additional data. This means each empty metadata field will use 4 bytes.
 
-The metadata field values are not null terminated and instead continue instantly to the next `uint16` character length value (if any).
+Even though each metadata field seems to be used as a string, the values do not seem to be null terminated and instead continue instantly to the next metadata field structure (if any).
+
+| Field | Data Type | Notes |
+| --- | --- | --- |
+| Character Length | `uint32` | May be 0 |
+| Data | `uint16[]` | Typically a non-null terminated (7-bit) ASCII string |
 
 ### Encoding Example
 The following encodes a value of "HELLO" in 14 bytes.
 
 ```
-0x05 0x00	// uint16 character length value (5)
-0x00 0x00	// uint16 NUL value
-0x72 0x00	// UTF-16 LE "H"
-0x69 0x00	// ..."E"
-0x76 0x00	// ..."L"
-0x76 0x00	// ..."L"
-0x79 0x00	// ..."O"
+0x05 0x00 0x00 0x00 // uint32 character length value (5)
+0x72 0x00 // "H"
+0x69 0x00 // "E"
+0x76 0x00 // "L"
+0x76 0x00 // "L"
+0x79 0x00 // "O"
 ```
 
-A metadata field may be "omitted" by encoding a character length value of 0. Keep in mind, the `uint16` NUL value is still required. This means each empty metadata field will use 4 bytes.
-
-### Metadata Field Order
-The metadata fields are not keyed, and instead a fixed encoding order is used in order to interpret the value of each metadata field. Unfortunately this means the purpose of each field is static, and the addition of new fields is unsupported and dangerous. 
-
-#### Encoding Order
+### Encoding Order
 1. File path of the media file, if any
 2. File author
 3. File creation timestamp
@@ -59,4 +58,33 @@ The metadata fields are not keyed, and instead a fixed encoding order is used in
 Empty metadata field values must still be written, otherwise the official Light-O-Rama software will misinterpret the values and potentially attempt to read sequence data as metadata fields.
 
 ## Sequence Data
-The sequence data appears to be aligned in 40 byte blocks (this may be a result of my configuration), prefixed by a `uint16` value containing the centiseconds (0.01 seconds) value used by the Light-O-Rama [timing grid](http://www.lightorama.com/help/index.html?concept_compressed_sequences.htm).
+The index following the last metadata field begins the compressed sequence data. The sequence data appears to be aligned in 40 byte blocks (this may be a result of my configuration).
+
+### Block
+| Field | Data Type | Notes |
+| --- | --- | --- |
+| Sequence Duration | `uint32` | [Centiseconds](http://www.lightorama.com/help/index.html?concept_compressed_sequences.htm) (0.01 seconds) duration of sequence. This value seems to be used only a few times, with a 0 value "appending" to the current block. |
+| Start | `uint32` | Centiseconds start time of the given effect |
+| Stop | `uint32` | Centiseconds stop time of the given effect |
+| Effect | | See #Effects |
+| | `uint32` | Unknown purpose, always `0x01` |
+| | `uint32` | Unknown purpose, always `0x00` |
+| Unit | `uint32` | |
+| Channel | `uint32` | |
+
+## Effects
+### Intensity
+Intensity controls the "brightness" of a given channel using a start and end value. The hardware controller will step between the two values over the duration of the effect. The sequence compression utility seems to use this single effect for fading, constant on, and constant off behaviors by manipulating the start and end intensity values.
+
+| Field | Data Type | Value |
+| --- | --- | --- |
+| Id | `uint32` | `0x00` |
+| Start Intensity | `uint32` | Any value between `[0, 100]` |
+| End Intensity | `uint32` | Any value between `[0, 100]` |
+
+### Shimmer
+| Field | Data Type | Value |
+| --- | --- | --- |
+| Id | `uint32` | `0x01` |
+| Start Intensity | `uint32` | Any value between `[0, 100]` |
+| End Intensity | `uint32` | Any value between `[0, 100]` |
