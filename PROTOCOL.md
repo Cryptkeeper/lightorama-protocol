@@ -120,7 +120,7 @@ Actions are predefined lighting effects, typically built into the hardware. Thes
 
 | Name | Value | Description | Has Metadata |
 | --- | --- | --- | --- |
-| On | `0x01` | Sets a channel to 100% brightness | No |
+| Set Lights | `0x01` | Sets a single channel to 100% brightness, or the absolute state of multiple channels using a mask | No |
 | Set Brightness | `0x03` | Sets a channel's brightness | Yes |
 | Fade | `0x04` | Fades a channel between two brightness values | Yes |
 | Set Twinkle | `0x06` | Sets a channel to twinkling mode | No |
