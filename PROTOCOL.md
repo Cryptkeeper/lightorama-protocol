@@ -122,7 +122,8 @@ Actions are predefined lighting effects, typically built into the hardware. Thes
 | --- | --- | --- | --- |
 | Set Lights | `0x01` | Sets a single channel to 100% brightness, or the absolute state of multiple channels using a mask | No |
 | Set Brightness | `0x03` | Sets a channel's brightness | Yes |
-| Fade | `0x04` | Fades a channel between two brightness values | Yes |
+| Fade | `0x04` | Fades a channel between two brightness values according to a duration | Yes |
+| Fade Loop | `0x05` | Infinitely fades a channel between zero/full brightness according to a duration | Yes |
 | Set Twinkle | `0x06` | Sets a channel to twinkling mode | No |
 | Set Shimmer | `0x07` | Sets a channel to shimmer mode | No |
 
@@ -139,6 +140,13 @@ See Light-O-Rama's [Effects](http://www.lightorama.com/help/index.html?concept_e
 | --- | --- |
 | Start Brightness | `uint8` |
 | End Brightness | `uint8` |
+| Duration | `uint16` |
+
+#### Fade Loop
+This action appears to loop infinitely, assuming the connection remains active. The duration corresponds to one half of the fade effect. There is (seemingly) no way to end the fade effect without the possibility of interrupting it. I cannot find any usages of this effect within Light-O-Rama's official software.
+
+| Name | Data Type |
+| --- | --- |
 | Duration | `uint16` |
 
 # Messages
