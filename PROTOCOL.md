@@ -120,7 +120,8 @@ Actions are predefined lighting effects, typically built into the hardware. Thes
 
 | Name | Value | Description | Has Metadata |
 | --- | --- | --- | --- |
-| Set Lights | `0x01` | Sets a single channel to 100% brightness, or the absolute state of multiple channels using a mask | No |
+| Set Light State(s) | `0x01` | Sets a single channel to 100% brightness, or the absolute brightness (0% or 100%) of multiple channels according to a channel mask | No |
+| | `0x02` | |
 | Set Brightness | `0x03` | Sets a channel's brightness | Yes |
 | Fade | `0x04` | Fades a channel between two brightness values according to a duration | Yes |
 | Fade Loop | `0x05` | Infinitely fades a channel between zero/full brightness according to a duration | Yes |
@@ -200,22 +201,20 @@ Turns off all channels attached to the unit ID without any filtering capability.
 | Action | `uint8` | `0x41` |
 
 ## Background Fade
-Background Fade enables applying a foreground action atop a background action. This allows execution of multiple single channel actions simultaneously on the same channel ID. The structure is equivalent to the two actions joined with a `0x81` magic number.
+Background Fade enables applying a foreground action atop a background action. This allows execution of multiple single channel actions simultaneously on the same channel. The structure is equivalent to the two actions joined with a `0x81` magic number.
+
+While other action values may be used, only `Set Shimmer` and `Fade` seem to produce results without clashing.
 
 | Field | Data Type | Value | Notes |
 | --- | --- | --- | --- |
 | Unit ID | `uint8` | | |
-| Foreground Action | `uint8` | `0x07` | Only works with `Set Shimmer` |
-| Channel ID | `uint8` | | |
+| Foreground Action | `uint8` | | |
+| Channel | `uint8` | | Supports single channel ID and channel masks |
 | Magic Number | `uint8` | `0x81` | Denotes extended message? |
-| Background Action | `uint8` | `0x04` | Only works with `Fade` |
+| Background Action | `uint8` | | |
 | Start Brightness | `uint8` | | |
 | End Brightness | `uint8` | | |
 | Duration | `uint16` | | |
-
-### Notes
-* This has not been tested with broadcast or channel masking behavior.
-* While other action values may be used, only `Set Shimmer` and `Fade` produce results without clashing.
 
 ## Single Channel Action
 Executes an action (and its metadata, if any) on the single specified channel. If broadcasted, this will apply to the specified channel ID of *each* unit (assuming it has enough channels).
