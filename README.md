@@ -12,8 +12,8 @@ It is incomplete and should be considered unsupported. Although risky, this docu
 ### Reference Implementations
 * [xLights](https://github.com/smeighan/xLights) is a LOR-like C++ program which offers support for LOR units.
 * [fpp](https://github.com/FalconChristmas/fpp/blob/master/src/channeloutput/LOR.cpp) is a sequence scheduling and player program which supports LOR output.
-* [liblightorama](https://github.com/Cryptkeeper/liblightorama) is a C90 library implementing the LOR protocol and brightness curves.
-* [go-lightorama](https://github.com/Cryptkeeper/go-lightorama) is a Go library implemented given this documentation.
+* [libtinylor](https://github.com/Cryptkeeper/libtinylor) is a single-file C99 header library for easily controlling LOR hardware.
+* [fplayer](https://github.com/Cryptkeeper/fplayer) is a FSEQ file player for LOR hardware.
 
 ### Light-O-Rama Resources
 * [Firmware updates](http://www1.lightorama.com/firmware-updates/)
